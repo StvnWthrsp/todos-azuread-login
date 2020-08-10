@@ -10,7 +10,7 @@ const config = require ('./config');
 require('dotenv').config();
 
 var con = mysql.createConnection({
-  host: "localhost",
+  host: "azure-avatar-db",
   user: process.env.MYSQL_USER,
   password: process.env.MYSQL_PASS,
 	database: "users"
