@@ -5,7 +5,16 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const methodOverride = require('method-override');
 const util = require('util');
+const mysql = require('mysql');
 const config = require ('./config');
+require('dotenv').config();
+
+var con = mysql.createConnection({
+  host: "localhost",
+  user: process.env.MYSQL_USER,
+  password: process.env.MYSQL_PASS,
+	database: "users"
+});
 
 var OIDCStrategy = require('passport-azure-ad').OIDCStrategy;
 
@@ -83,7 +92,7 @@ app.set('view engine', 'ejs');
 app.use(methodOverride());
 app.use(cookieParser());
 
-app.use(expressSession({ secret: 'keyboard cat', resave: true, saveUninitialized: false }));
+app.use(expressSession({ secret: process.env.SUPER_SECRET, resave: true, saveUninitialized: false }));
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -96,11 +105,31 @@ function ensureAuthenticated(req, res, next) {
 };
 
 app.get('/', (req, res) => {
-	res.render('index', { user: req.user });
+	if(!req.user) {
+		res.render('index', { user: req.user });
+		return;
+	}
+
+	con.connect(function(err) {
+		if (err) {
+			console.log("Error connecting to database: " + err);
+			return;
+		}
+
+		var statement = 'SELECT Nationality FROM users WHERE oid = "' + req.user.oid + '";';
+
+		con.query(statement, function (err, result) {
+			if (err) throw err;
+			console.log("Result: " + result[0].Nationality);
+			res.render('index', { user: req.user, nationality: result[0].Nationality });
+		});
+	});
+
+
 });
 
 app.get('/login', (req, res, next) => {
-		passport.authenticate('azuread-openidconnect', 
+		passport.authenticate('azuread-openidconnect',
 			{
 				response: res,
 				//resourceURL: config.resourceURL,
@@ -115,7 +144,7 @@ app.get('/login', (req, res, next) => {
 );
 
 app.get('/auth/openid/return', (req, res, next) => {
-		passport.authenticate('azuread-openidconnect', 
+		passport.authenticate('azuread-openidconnect',
 			{
 				response: res,
 				failureRedirect: '/'
@@ -129,7 +158,7 @@ app.get('/auth/openid/return', (req, res, next) => {
 );
 
 app.post('/auth/openid/return', (req, res, next) => {
-		passport.authenticate('azuread-openidconnect', 
+		passport.authenticate('azuread-openidconnect',
 			{
 				response: res,
 				failureRedirect: '/'
@@ -141,6 +170,13 @@ app.post('/auth/openid/return', (req, res, next) => {
 		res.redirect('/');
 	}
 );
+
+app.get('/logout', function(req, res){
+  req.session.destroy(function(err) {
+    req.logOut();
+    res.redirect(config.destroySessionUrl);
+  });
+});
 
 app.listen(3000, () => {
 	console.log('Listening on port 3000');
