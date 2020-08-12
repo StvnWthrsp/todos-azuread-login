@@ -110,19 +110,13 @@ app.get('/', (req, res) => {
 		return;
 	}
 
-	con.connect(function(err) {
-		if (err) {
-			console.log("Error connecting to database: " + err);
-			return;
-		}
+	var statement = 'SELECT * FROM users WHERE oid = "' + req.user.oid + '";';
 
-		var statement = 'SELECT Nationality FROM users WHERE oid = "' + req.user.oid + '";';
-
-		con.query(statement, function (err, result) {
-			if (err) throw err;
-			console.log("Result: " + result[0].Nationality);
-			res.render('index', { user: req.user, nationality: result[0].Nationality });
-		});
+	con.query(statement, function (err, result) {
+		if (err) throw err;
+    if (result) {
+      res.render('index', { user: req.user, profile: result[0] });
+    }
 	});
 
 
