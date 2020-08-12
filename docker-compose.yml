@@ -1,0 +1,20 @@
+version: '3.3'
+services:
+  server:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    ports:
+      - "3000:3000"
+    container_name: azure-avatar-app
+  database:
+    build:
+      dockerfile: Dockerfile
+      context: ./database
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpw
+    container_name: azure-avatar-db
+    volumes:
+      - dbdata:/var/lib/mysql
+volumes:
+  dbdata:
