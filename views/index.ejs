@@ -6,5 +6,17 @@
 	<p><%= profile.Nationality %></p>
 	<a href="/logout">Log Out</a>
 <% } else { %>
-	<h2>Please set up your profile.</h2>
+	<h2>Please set up your user profile.</h2>
+	<form action="/signup" method="post">
+		<label for="fname">First Name</label>
+		<input type="text" id="fname" name="fname"><br>
+		<label for="nation">Nationality</label>
+		<select id="nation" name="nation">
+			<option value="Fire Nation">Fire Nation</option>
+			<option value="Earth Kingdom">Earth Kingdom</option>
+			<option value="Water Tribe">Water Tribe</option>
+			<option value="Air Nomads">Air Nomads</option>
+		</select>
+		<input type="submit" value="Submit">
+	</form>
 <% } %>

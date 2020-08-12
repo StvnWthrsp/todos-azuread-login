@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const methodOverride = require('method-override');
 const util = require('util');
 const mysql = require('mysql');
+
 const config = require ('./config');
 require('dotenv').config();
 
@@ -164,6 +165,22 @@ app.post('/auth/openid/return', (req, res, next) => {
 		res.redirect('/');
 	}
 );
+
+app.post('/signup', (req, res) => {
+  if(!user) {
+    res.redirect('/');
+  }
+  console.log('Posting user to database');
+
+  var statement = 'INSERT INTO users (oid, Name, Nationality) VALUES ("' + req.user.oid + '", "' + req.body.fname + '", "' + req.body.nation + '");'
+
+	con.query(statement, function (err, result) {
+		if (err) throw err;
+    console.log(result);
+	});
+
+	res.redirect('/');
+});
 
 app.get('/logout', function(req, res){
   req.session.destroy(function(err) {
