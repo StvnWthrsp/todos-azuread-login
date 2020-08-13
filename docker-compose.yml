@@ -6,14 +6,14 @@ services:
       context: .
     ports:
       - "3000:3000"
-    container_name: azure-avatar-app
+    container_name: todos-azuread-app
   database:
     build:
       dockerfile: Dockerfile
       context: ./database
     environment:
       - MYSQL_ROOT_PASSWORD=rootpw
-    container_name: azure-avatar-db
+    container_name: todos-azuread-db
     volumes:
       - dbdata:/var/lib/mysql
 volumes:

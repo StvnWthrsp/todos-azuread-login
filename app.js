@@ -11,7 +11,7 @@ const config = require ('./config');
 require('dotenv').config();
 
 var con = mysql.createConnection({
-  host: "azure-avatar-db",
+  host: "todos-azuread-db",
   user: process.env.MYSQL_USER,
   password: process.env.MYSQL_PASS,
 	database: "users"
@@ -127,12 +127,13 @@ app.get('/todos', (req, res) => {
     return;
   }
 
-  var statement = 'SELECT * FROM tools WHERE owner_oid = "' + req.user.oid + '";';
-
+  var statement = 'SELECT * FROM todos WHERE owner_oid = "' + req.user.oid + '";';
+  console.log(statement);
 	con.query(statement, function (err, result) {
 		if (err) throw err;
     if (result) {
-      res.render('todo-list', { user: req.user, tools: result });
+      console.log(result[0]);
+      res.render('todo-list', { user: req.user, todos: result });
     }
 	});
 });
@@ -186,7 +187,7 @@ app.post('/signup', (req, res) => {
   }
   console.log('Posting user to database');
 
-  var statement = 'INSERT INTO users (oid, Name, Age, Sex) VALUES ("' + req.user.oid + '", "' + req.body.fname + '", "' + req.body.age + '", "' + req.body.sex '");'
+  var statement = 'INSERT INTO users (oid, Name, Age, Sex) VALUES ("' + req.user.oid + '", "' + req.body.fname + '", "' + req.body.age + '", "' + req.body.sex + '");';
 
 	con.query(statement, function (err, result) {
 		if (err) throw err;

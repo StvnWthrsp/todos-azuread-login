@@ -3,9 +3,10 @@
 	<a href="/login">Log In</a>
 <% } else { %>
 	<h2>Hello, <%= user.displayName %>.</h2>
+	<h3>Here is your personal todo list.</h3>
 	<ul>
-		<% tools.forEach( (item, i) => { %>
-			<li><%= item.name %></li>
+		<% todos.forEach( (e, i) => { %>
+			<li><%= e.item %></li>
 		<% }); %>
 	</ul>
 	<a href="/logout">Log Out</a>

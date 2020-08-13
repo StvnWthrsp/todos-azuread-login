@@ -3,8 +3,9 @@
 	<a href="/login">Log In</a>
 <% } else if (profile) { %>
 	<h2>Hello, <%= user.displayName %>.</h2>
-	<p><%= profile.Nationality %></p>
-	<a href="/todos">Tools</a><br>
+	<p><%= profile.Age %></p>
+	<p><%= profile.Sex %></p>
+	<a href="/todos">Todos</a><br>
 	<a href="/logout">Log Out</a>
 <% } else { %>
 	<h2>Please set up your user profile.</h2>
