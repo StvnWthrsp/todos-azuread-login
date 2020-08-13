@@ -3,5 +3,10 @@
 	<a href="/login">Log In</a>
 <% } else { %>
 	<h2>Hello, <%= user.displayName %>.</h2>
+	<ul>
+		<% tools.forEach( (item, i) => { %>
+			<li><%= item.name %></li>
+		<% }); %>
+	</ul>
 	<a href="/logout">Log Out</a>
 <% } %>

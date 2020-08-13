@@ -119,8 +119,22 @@ app.get('/', (req, res) => {
       res.render('index', { user: req.user, profile: result[0] });
     }
 	});
+});
 
+app.get('/todos', (req, res) => {
+  if(!req.user) {
+    res.render('index', { user: req.user});
+    return;
+  }
 
+  var statement = 'SELECT * FROM tools WHERE owner_oid = "' + req.user.oid + '";';
+
+	con.query(statement, function (err, result) {
+		if (err) throw err;
+    if (result) {
+      res.render('todo-list', { user: req.user, tools: result });
+    }
+	});
 });
 
 app.get('/login', (req, res, next) => {
@@ -167,12 +181,12 @@ app.post('/auth/openid/return', (req, res, next) => {
 );
 
 app.post('/signup', (req, res) => {
-  if(!user) {
+  if(!req.user) {
     res.redirect('/');
   }
   console.log('Posting user to database');
 
-  var statement = 'INSERT INTO users (oid, Name, Nationality) VALUES ("' + req.user.oid + '", "' + req.body.fname + '", "' + req.body.nation + '");'
+  var statement = 'INSERT INTO users (oid, Name, Age, Sex) VALUES ("' + req.user.oid + '", "' + req.body.fname + '", "' + req.body.age + '", "' + req.body.sex '");'
 
 	con.query(statement, function (err, result) {
 		if (err) throw err;
