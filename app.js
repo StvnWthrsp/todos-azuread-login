@@ -150,7 +150,7 @@ app.post('/todos', (req, res) => {
 	});
 
   statement = 'SELECT * FROM todos WHERE owner_oid = "' + req.user.oid + '";';
-  
+
   con.query(statement, function (err, result) {
 		if (err) throw err;
     if (result) {
@@ -228,4 +228,7 @@ app.get('/logout', function(req, res){
 
 app.listen(3000, () => {
 	console.log('Listening on port 3000');
+
+  // Keep the mysql connection alive by querying on a 1 hour interval
+  setInterval( () => { con.query('SELECT 1;', function(err, result) { if (err) console.log(err) }) } , 3600000);
 });
