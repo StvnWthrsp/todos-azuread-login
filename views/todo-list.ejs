@@ -6,8 +6,14 @@
 	<h3>Here is your personal todo list.</h3>
 	<ul>
 		<% todos.forEach( (e, i) => { %>
-			<li><%= e.item %></li>
+			<li><input type="checkbox"> <%= e.item %></li>
 		<% }); %>
 	</ul>
+	<form action="/todos" method="post">
+		<label for="item">New Todo Item</label>
+		<input type="text" id="item" name="item"><br>
+		<input type="submit" value="Submit">
+	</form>
+	<a href="/">Home</a><br>
 	<a href="/logout">Log Out</a>
 <% } %>

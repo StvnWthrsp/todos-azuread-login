@@ -128,14 +128,36 @@ app.get('/todos', (req, res) => {
   }
 
   var statement = 'SELECT * FROM todos WHERE owner_oid = "' + req.user.oid + '";';
-  console.log(statement);
+
 	con.query(statement, function (err, result) {
 		if (err) throw err;
     if (result) {
-      console.log(result[0]);
       res.render('todo-list', { user: req.user, todos: result });
     }
 	});
+});
+
+app.post('/todos', (req, res) => {
+  if(!req.user) {
+    res.render('index', { user: req.user});
+    return;
+  }
+
+  var statement = 'INSERT INTO todos (id, item, owner_oid) VALUES ("' + req.body.item.toLowerCase().trim().replace(/ /g, '-') + '", "' + req.body.item + '", "' + req.user.oid + '");';
+
+	con.query(statement, function (err, result) {
+		if (err) throw err;
+	});
+
+  statement = 'SELECT * FROM todos WHERE owner_oid = "' + req.user.oid + '";';
+  
+  con.query(statement, function (err, result) {
+		if (err) throw err;
+    if (result) {
+      res.render('todo-list', { user: req.user, todos: result });
+    }
+	});
+
 });
 
 app.get('/login', (req, res, next) => {

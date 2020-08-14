@@ -1,12 +1,12 @@
 <% if (!user) { %>
 	<h2>Login</h2>
-	<a href="/login">Log In</a>
+	<a href='/login'>Log In</a>
 <% } else if (profile) { %>
 	<h2>Hello, <%= user.displayName %>.</h2>
-	<p><%= profile.Age %></p>
-	<p><%= profile.Sex %></p>
-	<a href="/todos">Todos</a><br>
-	<a href="/logout">Log Out</a>
+	<p>Age: <%= profile.Age %></p>
+	<p>Sex: <%= (profile.Sex == 'm') ? 'Male' : (profile.Sex == 'f') ? 'Female' : 'Other' %></p>
+	<a href='/todos'>Todos</a><br>
+	<a href='/logout'>Log Out</a>
 <% } else { %>
 	<h2>Please set up your user profile.</h2>
 	<form action="/signup" method="post">
