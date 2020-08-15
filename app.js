@@ -93,7 +93,7 @@ app.set('view engine', 'ejs');
 app.use(methodOverride());
 app.use(cookieParser());
 
-app.use(expressSession({ secret: process.env.SUPER_SECRET, resave: true, saveUninitialized: false }));
+app.use(expressSession({ secret: process.env.SESSION_SECRET, resave: true, saveUninitialized: false }));
 
 app.use(passport.initialize());
 app.use(passport.session());
