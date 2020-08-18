@@ -1,5 +1,6 @@
 const express = require('express');
 const expressSession = require('express-session');
+const path = require('path');
 const passport = require('passport');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
@@ -90,6 +91,8 @@ var app = express();
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 
+app.use(express.static(path.join(__dirname, 'public')));
+
 app.use(methodOverride());
 app.use(cookieParser());
 
@@ -99,6 +102,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use(bodyParser.urlencoded({ extended : true }));
+app.use(bodyParser.json());
 
 function ensureAuthenticated(req, res, next) {
 	if( req.isAuthenticated() ) { return next(); }
@@ -143,9 +147,10 @@ app.post('/todos', (req, res) => {
     return;
   }
 
-  var statement = 'INSERT INTO todos (id, item, owner_oid) VALUES ("' + req.body.item.toLowerCase().trim().replace(/ /g, '-') + '", "' + req.body.item + '", "' + req.user.oid + '");';
+  //var statement = 'INSERT INTO todos (id, item, owner_oid) VALUES ("' + req.body.item.toLowerCase().trim().replace(/ /g, '-') + '", "' + req.body.item + '", "' + req.user.oid + '");';
+  var statement = 'INSERT INTO todos (item, owner_oid) VALUES ("' + req.body.item + '", "' + req.user.oid + '");';
 
-	con.query(statement, function (err, result) {
+  con.query(statement, function (err, result) {
 		if (err) throw err;
 	});
 
@@ -156,6 +161,22 @@ app.post('/todos', (req, res) => {
     if (result) {
       res.render('todo-list', { user: req.user, todos: result });
     }
+	});
+
+});
+
+app.post('/todos/remove', (req, res) => {
+  if(!req.user) {
+    res.render('index', { user: req.user});
+    return;
+  }
+  console.log(req.body);
+
+  var statement = `DELETE FROM todos WHERE item='${req.body.item}'`;
+
+  con.query(statement, function (err, result) {
+		if (err) throw err;
+    res.sendStatus(200);
 	});
 
 });

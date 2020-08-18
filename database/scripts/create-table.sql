@@ -6,7 +6,7 @@ CREATE TABLE users (
 );
 
 CREATE TABLE todos (
-	id varchar(255) NOT NULL PRIMARY KEY,
+	id INT AUTO_INCREMENT PRIMARY KEY,
 	item varchar(255),
 	owner_oid varchar(255)
 );

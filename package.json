@@ -19,6 +19,7 @@
     "mysql": "^2.18.1",
     "passport": "^0.4.1",
     "passport-azure-ad": "^4.2.1",
+    "path": "^0.12.7",
     "util": "^0.12.3"
   }
 }
