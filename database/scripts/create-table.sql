@@ -8,5 +8,6 @@ CREATE TABLE users (
 CREATE TABLE todos (
 	id INT AUTO_INCREMENT PRIMARY KEY,
 	item varchar(255),
-	owner_oid varchar(255)
+	owner_oid varchar(255),
+	FOREIGN KEY (owner_oid) REFERENCES users(oid)
 );

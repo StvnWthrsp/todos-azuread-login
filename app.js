@@ -12,7 +12,7 @@ const config = require ('./config');
 require('dotenv').config();
 
 var con = mysql.createConnection({
-  host: "todos-azuread-db",
+  host: process.env.MYSQL_HOST,
   user: process.env.MYSQL_USER,
   password: process.env.MYSQL_PASS,
 	database: "users"
