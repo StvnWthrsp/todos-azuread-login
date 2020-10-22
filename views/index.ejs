@@ -2,7 +2,7 @@
 	<h2>Login</h2>
 	<a href='/login'>Log In</a>
 <% } else if (profile) { %>
-	<h2>Hello, <%= user.displayName %>.</h2>
+	<h2>Hello, <%= user.name %>.</h2>
 	<p>Age: <%= profile.Age %></p>
 	<p>Sex: <%= (profile.Sex == 'm') ? 'Male' : (profile.Sex == 'f') ? 'Female' : 'Other' %></p>
 	<a href='/todos'>Todos</a><br>

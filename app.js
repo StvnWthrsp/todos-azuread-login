@@ -7,6 +7,7 @@ const cookieParser = require('cookie-parser');
 const methodOverride = require('method-override');
 const util = require('util');
 const mysql = require('mysql');
+const jwt = require('jsonwebtoken');
 
 const config = require ('./config');
 require('dotenv').config();
@@ -19,6 +20,7 @@ var con = mysql.createConnection({
 });
 
 var OIDCStrategy = require('passport-azure-ad').OIDCStrategy;
+var AzureAdOAuth2Strategy = require('passport-azure-ad-oauth2');
 
 passport.serializeUser( (user, done) => {
 	done(null, user.oid);
@@ -43,42 +45,33 @@ var findByOid = function(oid, fn) {
   return fn(null, null);
 };
 
-passport.use(new OIDCStrategy({
-    identityMetadata: config.creds.identityMetadata,
+passport.use(new AzureAdOAuth2Strategy({
+    authorizationURL: config.creds.identityMetadata,
+    tokenURL: config.creds.tokenURL,
     clientID: config.creds.clientID,
     responseType: config.creds.responseType,
     responseMode: config.creds.responseMode,
-    redirectUrl: config.creds.redirectUrl,
-    allowHttpForRedirectUrl: config.creds.allowHttpForRedirectUrl,
+    callbackURL: config.creds.redirectUrl,
     clientSecret: config.creds.clientSecret,
-    validateIssuer: config.creds.validateIssuer,
-    isB2C: config.creds.isB2C,
-    issuer: config.creds.issuer,
-    passReqToCallback: config.creds.passReqToCallback,
     scope: config.creds.scope,
-    loggingLevel: config.creds.loggingLevel,
-    loggingNoPII: config.creds.loggingNoPII,
-    nonceLifetime: config.creds.nonceLifetime,
-    nonceMaxAmount: config.creds.nonceMaxAmount,
-    useCookieInsteadOfSession: config.creds.useCookieInsteadOfSession,
-    cookieSameSite: config.creds.cookieSameSite, // boolean
-    cookieEncryptionKeys: config.creds.cookieEncryptionKeys,
-    clockSkew: config.creds.clockSkew,
+    state: true,
+    pkce: true,
   },
-  function(iss, sub, profile, accessToken, refreshToken, done) {
-    if (!profile.oid) {
+  function(accessToken, refreshToken, params, profile, done) {
+    var ad_profile = jwt.decode(params.id_token);
+    if (!ad_profile.oid) {
       return done(new Error("No oid found"), null);
     }
     // asynchronous verification, for effect...
     process.nextTick(function () {
-      findByOid(profile.oid, function(err, user) {
+      findByOid(ad_profile.oid, function(err, user) {
         if (err) {
           return done(err);
         }
         if (!user) {
           // "Auto-registration"
-          users.push(profile);
-          return done(null, profile);
+          users.push(ad_profile);
+          return done(null, ad_profile);
         }
         return done(null, user);
       });
@@ -114,7 +107,13 @@ app.get('/', (req, res) => {
 		res.render('index', { user: req.user });
 		return;
 	}
-
+  if( req.user.groups.includes("cbcb7d7c-a6d5-4ac4-8f0b-a5a601687f3f") ) {
+    console.log("User authorized!");
+  }
+  if( !req.user.groups.includes("cbcb7d7c-a6d5-4ac4-8f0b-a5a601687f3f") ) {
+    res.redirect('unauthorized');
+    return;
+  }
 	var statement = 'SELECT * FROM users WHERE oid = "' + req.user.oid + '";';
 
 	con.query(statement, function (err, result) {
@@ -125,9 +124,14 @@ app.get('/', (req, res) => {
 	});
 });
 
+app.get('/unauthorized', (req, res) => {
+  res.render('unauthorized');
+  return;
+});
+
 app.get('/todos', (req, res) => {
   if(!req.user) {
-    res.render('index', { user: req.user});
+    res.render('index', { user: req.user });
     return;
   }
 
@@ -180,13 +184,13 @@ app.post('/todos/remove', (req, res) => {
 	});
 
 });
-
+/*
 app.get('/login', (req, res, next) => {
-		passport.authenticate('azuread-openidconnect',
+		passport.authenticate('azure_ad_oauth2',
 			{
 				response: res,
-				//resourceURL: config.resourceURL,
-				failureRedirect: '/'
+        successRedirect: '/success',
+				failureRedirect: '/login'
 			}
 		)(req, res, next);
 	},
@@ -195,31 +199,70 @@ app.get('/login', (req, res, next) => {
 		res.redirect('/');
 	}
 );
+*/
+app.get('/login',
+ passport.authenticate('azure_ad_oauth2',
+  {
+    successRedirect: '/success',
+    failureRedirect: '/'
+  }),
+  (req, res, next) => {
+		console.log('Return from AzureAD at return');
+		res.redirect('/');
+	}
+);
 
+/*
 app.get('/auth/openid/return', (req, res, next) => {
-		passport.authenticate('azuread-openidconnect',
+		passport.authenticate('azure_ad_oauth2',
 			{
 				response: res,
-				failureRedirect: '/'
+        successRedirect: '/success',
+				failureRedirect: '/login'
 			}
 		)(req, res, next);
 	},
 	(req, res) => {
-		console.log('Return from AzureAD');
+		console.log('Return from AzureAD at return');
 		res.redirect('/');
 	}
 );
 
 app.post('/auth/openid/return', (req, res, next) => {
-		passport.authenticate('azuread-openidconnect',
+		passport.authenticate('azure_ad_oauth2',
 			{
 				response: res,
+        successRedirect: '/success',
 				failureRedirect: '/'
 			}
 		)(req, res, next);
 	},
 	(req, res) => {
-		console.log('Return from AzureAD');
+		console.log('Return from AzureAD at return');
+		res.redirect('/');
+	}
+);
+*/
+app.get('/auth/openid/return',
+ passport.authenticate('azure_ad_oauth2',
+ {
+    successRedirect: '/',
+    failureRedirect: '/login'
+  }),
+  (req, res, next) => {
+		console.log('Return from AzureAD at return');
+		res.redirect('/');
+	}
+);
+
+app.post('/auth/openid/return',
+ passport.authenticate('azure_ad_oauth2',
+ {
+    successRedirect: '/',
+    failureRedirect: '/login'
+  }),
+  (req, res, next) => {
+		console.log('Return from AzureAD at return');
 		res.redirect('/');
 	}
 );

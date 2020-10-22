@@ -7,7 +7,7 @@
 	<h2>Login</h2>
 	<a href="/login">Log In</a>
 <% } else { %>
-	<h2>Hello, <%= user.displayName %>.</h2>
+	<h2>Hello, <%= user.name %>.</h2>
 	<h3>Here is your personal todo list.</h3>
 	<ul>
 		<% todos.forEach( (e, i) => { %>
