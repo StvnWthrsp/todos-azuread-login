@@ -8,6 +8,10 @@ terraform {
       source  = "hashicorp/azuread"
       version = "~> 2.8.0"
     }
+    docker = {
+      source  = "kreuzwerker/docker"
+      version = "2.15.0"
+    }
   }
 }
 
@@ -89,6 +93,49 @@ resource "azuread_group" "todos" {
   members          = [azuread_user.user1.object_id, azuread_user.user2.object_id, azuread_user.user3.object_id, azuread_user.user4.object_id]
 }
 
-module "database" {
-  source = "./modules/database"
+provider "docker" {
+  host = "unix:///var/run/docker.sock"
+}
+
+# Create a network
+resource "docker_network" "private_network" {
+  name = "todos-app-network"
+}
+
+# Start a container for mariadb
+resource "docker_container" "mariadb" {
+  name  = var.mariadb_image_name
+  image = var.mariadb_image_tag
+  ports {
+    internal = 3306
+    external = 3306
+  }
+  networks_advanced {
+      name = "todos-app-network"
+  }
+}
+
+# Start the app container
+resource "docker_container" "todos-app" {
+  name  = var.nodejs_image_name
+  image = var.nodejs_image_tag
+  ports {
+    internal = 3000
+    external = 3000
+  }
+  networks_advanced {
+      name = "todos-app-network"
+  }
+  env = [
+    "SESSION_SECRET=${var.session_secret}",
+    "MYSQL_HOST=${var.mysql_host}",
+    "MYSQL_USER=${var.mysql_user}",
+    "MYSQL_PASS=${var.mysql_pass}",
+    "AUTH_URL=https://login.microsoftonline.com/${azuread_application.todos.publisher_domain}/oauth2/v2.0/authorize",
+    "TOKEN_URL=https://login.microsoftonline.com/${azuread_application.todos.publisher_domain}/oauth2/v2.0/token",
+    "REDIRECT_URL=http://localhost:3000/auth/oauth2/return",
+    "CLIENT_ID=${azuread_application.todos.application_id}",
+    "CLIENT_SECRET=${azuread_application_password.todos.value}",
+    "DESTROY_URL=https://login.microsoftonline.com/common/oauth2/logout?post_logout_redirect_uri=http://localhost:3000"
+  ]
 }

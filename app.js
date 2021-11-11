@@ -1,7 +1,7 @@
 // Steven Weatherspoon, 2021
 // Simple ToDos app utilizing Azure AD for user login services. Node.js application and MariaDB database both run in local docker containers.
 // Terraform IaC configuration provided for automatic provisioning of Azure resources and containers. Docker images must be built and tagged properly.
-// Some manual configuration is still required in the config.js file. Intent is to automate these using Terraform as well.
+// One manual configuration task must be performed on the application in Azure after creation: Add the API Permission for Microsoft Graph USER.READ.
 
 const express = require('express');
 const expressSession = require('express-session');
@@ -10,13 +10,12 @@ const passport = require('passport');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const methodOverride = require('method-override');
-const util = require('util');
+//const util = require('util');
 const mysql = require('mysql');
 const jwt = require('jsonwebtoken');
 
-const config = require ('./config');
-
 // DEPRECATED - environment variables are now passed into the docker container by Terraform
+//const config = require ('./config');
 //require('dotenv').config();
 
 var con = mysql.createConnection({
@@ -52,14 +51,14 @@ var findByOid = function(oid, fn) {
 };
 
 passport.use(new AzureAdOAuth2Strategy({
-    authorizationURL: config.creds.identityMetadata,
-    tokenURL: config.creds.tokenURL,
-    clientID: config.creds.clientID,
-    responseType: config.creds.responseType,
-    responseMode: config.creds.responseMode,
-    callbackURL: config.creds.redirectUrl,
-    clientSecret: config.creds.clientSecret,
-    scope: config.creds.scope,
+    authorizationURL: process.env.AUTH_URL,
+    tokenURL: process.env.TOKEN_URL,
+    clientID: process.env.CLIENT_ID,
+    responseType: 'code',
+    responseMode: 'form_post',
+    callbackURL: process.env.REDIRECT_URL,
+    clientSecret: process.env.CLIENT_SECRET,
+    scope: ['email', 'openid', 'profile', 'https://graph.microsoft.com/user.read'],
     state: true,
     pkce: true,
   },
@@ -292,7 +291,7 @@ app.post('/signup', (req, res) => {
 app.get('/logout', function(req, res){
   req.session.destroy(function(err) {
     req.logOut();
-    res.redirect(config.destroySessionUrl);
+    res.redirect(process.env.DESTROY_URL);
   });
 });
 

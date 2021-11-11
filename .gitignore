@@ -1,4 +1,5 @@
 /learn-terraform-azure
+/modules/database/
 /node_modules
 config.js
 .env
