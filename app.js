@@ -112,10 +112,10 @@ app.get('/', (req, res) => {
 		res.render('index', { user: req.user });
 		return;
 	}
-  if( req.user.groups.includes("a78df26c-1965-4f28-80f0-79ff79cba038") ) {
+  if( req.user.groups.includes(process.env.TODOS_GROUP_ID) ) {
     console.log("User authorized!");
   }
-  if( !req.user.groups.includes("a78df26c-1965-4f28-80f0-79ff79cba038") ) {
+  if( !req.user.groups.includes(process.env.TODOS_GROUP_ID) ) {
     res.redirect('unauthorized');
     return;
   }

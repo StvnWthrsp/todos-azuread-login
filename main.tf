@@ -136,6 +136,7 @@ resource "docker_container" "todos-app" {
     "REDIRECT_URL=http://localhost:3000/auth/oauth2/return",
     "CLIENT_ID=${azuread_application.todos.application_id}",
     "CLIENT_SECRET=${azuread_application_password.todos.value}",
-    "DESTROY_URL=https://login.microsoftonline.com/common/oauth2/logout?post_logout_redirect_uri=http://localhost:3000"
+    "DESTROY_URL=https://login.microsoftonline.com/common/oauth2/logout?post_logout_redirect_uri=http://localhost:3000",
+    "TODOS_GROUP_ID=${azuread_group.todos.object_id}"
   ]
 }
