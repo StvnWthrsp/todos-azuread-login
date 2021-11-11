@@ -1,6 +1,7 @@
 exports.creds = {
   // Required
-  identityMetadata: 'https://login.microsoftonline.com/<tenant_name>.onmicrosoft.com/.well-known/openid-configuration',
+  identityMetadata: 'https://login.microsoftonline.com/<tenant_name>.onmicrosoft.com/oauth2/v2.0/authorize',
+  tokenUrl: 'https://login.microsoftonline.com/<tenant_name>.onmicrosoft.com/oauth2/v2.0/token',
   // or equivalently: 'https://login.microsoftonline.com/<tenant_guid>/.well-known/openid-configuration'
   //
   // or you can use the common endpoint
@@ -11,13 +12,13 @@ exports.creds = {
   clientID: '<your_client_id>',
 
   // Required, must be 'code', 'code id_token', 'id_token code' or 'id_token'
-  responseType: 'code id_token',
+  responseType: 'code',
 
   // Required
   responseMode: 'form_post',
 
   // Required, the reply URL registered in AAD for your app
-  redirectUrl: 'http://localhost:3000/auth/openid/return',
+  redirectUrl: 'http://localhost:3000/auth/oauth2/return',
 
   // Required if we use http for redirectUrl
   allowHttpForRedirectUrl: true,
@@ -53,7 +54,7 @@ exports.creds = {
   ],
 
   // Optional. The additional scope you want besides 'openid', for example: ['email', 'profile'].
-  scope: null,
+  scope: ['email', 'openid', 'profile', 'https://graph.microsoft.com/user.read'],
 
   // Optional, 'error', 'warn' or 'info'
   loggingLevel: 'info',

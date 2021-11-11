@@ -1,3 +1,8 @@
+// Steven Weatherspoon, 2021
+// Simple ToDos app utilizing Azure AD for user login services. Node.js application and MariaDB database both run in local docker containers.
+// Terraform IaC configuration provided for automatic provisioning of Azure resources and containers. Docker images must be built and tagged properly.
+// Some manual configuration is still required in the config.js file. Intent is to automate these using Terraform as well.
+
 const express = require('express');
 const expressSession = require('express-session');
 const path = require('path');
@@ -10,7 +15,9 @@ const mysql = require('mysql');
 const jwt = require('jsonwebtoken');
 
 const config = require ('./config');
-require('dotenv').config();
+
+// DEPRECATED - environment variables are now passed into the docker container by Terraform
+//require('dotenv').config();
 
 var con = mysql.createConnection({
   host: process.env.MYSQL_HOST,
@@ -19,7 +26,6 @@ var con = mysql.createConnection({
 	database: "users"
 });
 
-var OIDCStrategy = require('passport-azure-ad').OIDCStrategy;
 var AzureAdOAuth2Strategy = require('passport-azure-ad-oauth2');
 
 passport.serializeUser( (user, done) => {
@@ -107,10 +113,10 @@ app.get('/', (req, res) => {
 		res.render('index', { user: req.user });
 		return;
 	}
-  if( req.user.groups.includes("cbcb7d7c-a6d5-4ac4-8f0b-a5a601687f3f") ) {
+  if( req.user.groups.includes("a78df26c-1965-4f28-80f0-79ff79cba038") ) {
     console.log("User authorized!");
   }
-  if( !req.user.groups.includes("cbcb7d7c-a6d5-4ac4-8f0b-a5a601687f3f") ) {
+  if( !req.user.groups.includes("a78df26c-1965-4f28-80f0-79ff79cba038") ) {
     res.redirect('unauthorized');
     return;
   }
@@ -243,7 +249,7 @@ app.post('/auth/openid/return', (req, res, next) => {
 	}
 );
 */
-app.get('/auth/openid/return',
+app.get('/auth/oauth2/return',
  passport.authenticate('azure_ad_oauth2',
  {
     successRedirect: '/',
@@ -255,7 +261,7 @@ app.get('/auth/openid/return',
 	}
 );
 
-app.post('/auth/openid/return',
+app.post('/auth/oauth2/return',
  passport.authenticate('azure_ad_oauth2',
  {
     successRedirect: '/',
