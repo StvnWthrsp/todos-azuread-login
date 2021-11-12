@@ -23,7 +23,7 @@ variable "mariadb_image_name" {
 }
 
 variable "mariadb_image_tag" {
-  default = "todos-azuread-db:0.1"
+  default = "stevenweatherspoon/todos-azuread-db:latest"
 }
 
 variable "nodejs_image_name" {
@@ -31,5 +31,5 @@ variable "nodejs_image_name" {
 }
 
 variable "nodejs_image_tag" {
-  default = "todos-app:0.1"
+  default = "stevenweatherspoon/todos-azuread-app:latest"
 }

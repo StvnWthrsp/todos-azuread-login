@@ -1,6 +1,6 @@
 // Steven Weatherspoon, 2021
 // Simple ToDos app utilizing Azure AD for user login services. Node.js application and MariaDB database both run in local docker containers.
-// Terraform IaC configuration provided for automatic provisioning of Azure resources and containers. Docker images must be built and tagged properly.
+// Terraform IaC configuration provided for automatic provisioning of Azure resources and containers.
 // One manual configuration task must be performed on the application in Azure after creation: Add the API Permission for Microsoft Graph USER.READ.
 
 const express = require('express');

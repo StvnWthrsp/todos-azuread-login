@@ -1,5 +1,5 @@
 # Steven Weatherspoon, 2021
-# Provisions resourrces in Microsoft Azure AD ready for use with the ToDos application in this repository.
+# Provisions resourrces in Microsoft Azure AD and local Docker containers for use with the ToDos application in this repository.
 
 # Configure Terraform
 terraform {
